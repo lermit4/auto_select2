@@ -49,43 +49,43 @@ module AutoSelect2
           name.sub('SearchAdapter', '').underscore
         end
 
-        def search(term, page, **options)
+        def search(term, page)
           page ||= 1
-          list = find(term, page, **options)
-          total_count = count(term, **options)
+          list = find(term, page)
+          total_count = count(term)
 
           {
-            results: format_list(list, **options),
+            results: format_list(list),
             more: total_count > (page * limit)
           }
         end
 
-        def format_list(list, **options)
-          list.map { |item| format(item, **options) }
+        def format_list(list)
+          list.map { |item| format(item) }
         end
 
-        def formatted_item(id, **options)
+        def formatted_item(id)
           item = searchable.find_by(searchable.primary_key => id)
-          format(item, **options) if item.present?
+          format(item) if item.present?
         end
 
-        def format(item, **)
+        def format(item)
           {id: item.id, text: item.to_s}
         end
 
-        def find(term, page, **options)
+        def find(term, page)
           if limit&.positive?
             offset = offset(page)
-            relation(term, **options).order(order).offset(offset).limit(limit)
+            relation(term).order(order).offset(offset).limit(limit)
           else
-            relation(term, **options).order(order)
+            relation(term).order(order)
           end
         end
 
-        def init(ids, **options)
+        def init(ids)
           return [] if ids.blank?
 
-          format_list(Array(searchable.find(ids)), **options).map do |item|
+          format_list(Array(searchable.find(ids))).map do |item|
             item.merge(selected: true)
           end
         end
@@ -99,11 +99,11 @@ module AutoSelect2
           "#{searchable.table_name}.#{searchable.primary_key} desc"
         end
 
-        def count(term, **options)
-          relation(term, **options).count
+        def count(term)
+          relation(term).count
         end
 
-        def relation(term, **)
+        def relation(term)
           searchable.where(conditions(term))
         end
 
