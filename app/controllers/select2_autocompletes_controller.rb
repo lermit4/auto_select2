@@ -10,7 +10,7 @@ class Select2AutocompletesController < ApplicationController
   def search
     term = params.delete(:term)
     page = params.delete(:page)
-    render json: find_adapter.search(term, page, **params.symbolize_keys)
+    render json: find_adapter.search(term, page)
   end
 
   private
